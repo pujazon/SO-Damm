@@ -1,0 +1,27 @@
+.include "macros.s"
+
+
+.set PILA, 0x8000               ;una posicion de memoria de una zona no ocupada para usarse como PILA
+
+
+.text
+        ; *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+        ;           Inicializacion
+        ; *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+
+        $MOVEI r7, PILA    ;inicializamos R7 como puntero a la pila
+        $MOVEI r6, inici   ;direccion de la rutina principal
+	$MOVEI r4, 0x0000 ;Nos dira que proceso ha  muerto. Como son 2 easy. Si miraramos paginas podriamos hasta max pag
+        jmp    r6
+
+
+       ; *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+       ; RUTINA PRINCIPAL SISTEMA OPERATIVO
+       ; *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+inici: 
+       	ei                 ;activa las interrupciones NOSE YO
+binf:  
+		
+	$MOVEI r1, 0x1000       
+	jmp r1 		;VAMOS A PROVAR QUE CUANDO PASA QUANTUM, REINICIE PROGRAMA
+
