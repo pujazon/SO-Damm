@@ -5,7 +5,7 @@
 
 	PILA=0x6000 ;Si que cal per guardar estat
 
-	.set SYSTEMA, 0xC000
+	.set SYSTEMA, 0xC012 ;En realidad es la direccion de inicio de SYSTEMA, sin el prologo inicial
 
 	; seccion de datos
 	.data
@@ -85,15 +85,21 @@
 		$MOVEI r4, tics_timer      ;@# ticks llegados
 		$MOVEI r3, 0      	   ;Reiniciamos #ticks llegados
 		st     0(r4), r3
-		$MOVEI r3, 7
 
 		$MOVEI r0, 0x1000	; Direccion del otro programa para que salte directo
+
+		
+
+		;Ara aqui tenemos que poner guardar en s4 que sera el programa 0 a ejecutarse
+	
+		movi r3, 0 ;No caldria en realidad pq ya estaba arriba
+			   ;Se podria hacer con mascara pillando la parte mas alta de r4 que ya la tendriamos
 		$MOVEI r4, SYSTEMA
 		jmp r4
 		;Aqui tendra que saltar a systema
 
-		out 6,r3        ; Solo para DEBUG; verdes = num
-		jmp    r6         ; R6 contine retorno para finRSG
+
+
 
 ; PARA TODAS LAS DEMAS INTERRUPCIONES NO HACE NADA
 

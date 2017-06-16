@@ -3,7 +3,8 @@
 
 .set PILA, 0x3000                ; una posicion de memoria de una zona no ocupada para usarse como PILA (ojo con la inicializacion del TLB)
 
-.set SYSTEMA, 0xC010
+
+.set SYSTEMA, 0xC032 ;En realidad es la direccion de inicio de SYSTEMA, sin el prologo inicial
 
 ; seccion de datos
 .data
@@ -154,6 +155,7 @@ context_switching:
 	$MOVEI r3, 7
 
 	$MOVEI r0, 0x4000	; Direccion del otro programa para que salte directo
+	$MOVEI r3, 0x0001	;Decirle que tiene que ir a este programa 1.
 	$MOVEI r4, SYSTEMA
 	jmp r4
 	;Aqui tendra que saltar a systema
