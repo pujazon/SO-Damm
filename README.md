@@ -41,3 +41,7 @@ Memoria:
 		*				*
 		*				*		
 		*********************************
+
+./sisa-emu pec_i1_OS/os.code.DE1.hex pec_i1_OS/os.data.DE1.hex -l addr=0x1000,file=corre_letras.code.DE1.hex -l addr=0x2000,file=corre_letras.data.DE1.hex -l addr=0x4000,file=fibonacci.code.DE1.hex -l addr=0x5000,file=fibonacci.data.DE1.hex -s 5000 -v -k -t -e 
+
+
