@@ -1,0 +1,53 @@
+addr
+1
+1010
+
+0x0 <= corre_letras data + stack
+0x1 <= corre_letras codigo + read_only data
+0x2 <= fibonacci data + stack
+0x3 <= fibonacci codigo + read_only data
+0x4
+0x5
+0x6
+0x7
+0x8 <= Sys datos + stacks
+0x9 <= <empty> (contiene zona SD
+0xA <= VGA (datos)
+0xB <= VGA (datos)
+0xC <= sys código
+0xD <= <empty>
+0xE <= <empty>
+0xF <= <empty>
+
+TLB DATOS:
+ - 0x0 = 0x0
+ - 0x1 = 0x1
+ - 0x2 = 0x2
+ - 0x3 = 0x3
+ - 0x8 = 0x8
+ - 0xA = 0xA
+ - 0xB = 0xB
+
+TLB INSTRUCCIONES:
+ - 0x1 = 0x1
+ - 0x3 = 0x3
+ - 0xC = 0xC
+
+
+                vtlb(0) <= "0000"; 0x0
+                vtlb(1) <= "0001"; 0x1
+                vtlb(2) <= "0010"; 0x2
+                vtlb(3) <= "1000"; 0x8
+                vtlb(4) <= "1100"; 0xC
+                vtlb(5) <= "1101"; 0xD
+                vtlb(6) <= "1110"; 0xE
+                vtlb(7) <= "1111"; 0xF
+                
+                ptlb(0) <= "0000";
+                ptlb(1) <= "0001";
+                ptlb(2) <= "0010";
+                ptlb(3) <= "1000";
+                ptlb(4) <= "1100";
+                ptlb(5) <= "1101";
+                ptlb(6) <= "1110";
+                ptlb(7) <= "1111";

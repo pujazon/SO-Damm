@@ -1,0 +1,8 @@
+
+sistema.o:     file format elf32-sisa
+
+Contents of section .sysdata:
+ 8000 00000500 caca0000 2ac12cc0 2cc050c1  ........*.,.,.P.
+ 8010 2ec02ec0 34c034c0 2ec02ec0 36c036c0  ....4.4.....6.6.
+ 8020 36c036c0 2ec02ec0 2ec02ec0 5ac168c1  6.6.........Z.h.
+ 8030 34c034c0 34c034c0 34c034c0           4.4.4.4.4.4.    

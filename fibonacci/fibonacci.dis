@@ -1,0 +1,368 @@
+
+temp_fibonacci.o:     file format elf32-sisa
+temp_fibonacci.o
+architecture: sisa:3, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x00000000
+
+Program Header:
+    LOAD off    0x00000000 vaddr 0x00001fac paddr 0x00001fac align 2**0
+         filesz 0x000001b4 memsz 0x000001b4 flags r-x
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn  Flags
+  0 .code         00000160  00002000  00002000  00000054  2**1  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .stab         0000048c  00003000  00003000  000001b4  2**2  CONTENTS, READONLY, DEBUGGING
+  2 .stabstr      000003e1  0000348c  0000348c  00000640  2**0  CONTENTS, READONLY, DEBUGGING
+SYMBOL TABLE:
+00002000 l    d  .code	00000000 .code
+00002012 l       .code	00000000 __pol1
+0000201c l       .code	00000000 __pol2
+000020be g       .code	00000000 __entry_point
+0000204c g     F .code	0000001e write_7segments
+000020be g     F .code	000000a2 main
+00002036 g     F .code	00000016 read_switchs
+0000206a g     F .code	00000054 fibonacci_recursiu
+00002000 g     F .code	00000036 read_key_bloq
+
+
+Disassembly of section .code:
+
+00002000 <read_key_bloq>:
+* Espera a que se pulse un pulsador (KEY) en la placa         *
+* y devuelve el numero del pulsador apretado cuando se suelta *
+**************************************************************/ 
+int read_key_bloq (void)
+{
+    2000:	2ff0 	addi	r7, r7, -16
+    2002:	4bc7 	st	14(r7), r5
+    2004:	4dc6 	st	12(r7), r6
+    2006:	2dcc 	addi	r6, r7, 12
+    2008:	45c1 	st	2(r7), r2
+    200a:	47c0 	st	0(r7), r3
+  // espera a que se pulse un pulsador y devuelve el numero del pulsador apretado.
+  int res,aux1,aux2,aux3;
+
+    /*
+    polling1: in   r3, 7        ; leemos el estado de los pulsadores
+              not  r3, r3       ; invertimos los bits ya que los pulsadores son activos a 0
+              movi r1, 0x0F     ; mascara para quedarnos con los 4 bits de menor peso
+              and  r1, r3, r1   ; nos quedamos con los 4 bits de los pulsadores
+              bz   r1, polling1 ; si todos valen 0 nos quedamos esperando (bloqueando) a que se pulse uno. 
+    pooling2: in   r3, 7        ; volvemos a leer el estado de los pulsadores
+              not  r3, r3       ;
+              movi r2, 0x0F     ;
+              and  r2, r3, r2   ; nos quedamos con los 4 bits ya que no sabemos como esta implementado el registro hardware de los pulsadores
+              bnz  r2, polling2 ; y esperamos hasta que no se pulse ninguno
+    */
+
+__asm__ (  
+    200c:	37bd 	ld	r3, -6(r6)
+    200e:	35be 	ld	r2, -4(r6)
+    2010:	33bf 	ld	r1, -2(r6)
+
+00002012 <__pol1>:
+    2012:	7607 	in	r3, 7
+    2014:	06d8 	not	r3, r3
+    2016:	520f 	movi	r1, 15
+    2018:	02c1 	and	r1, r3, r1
+    201a:	62fb 	bz	r1, -8
+
+0000201c <__pol2>:
+    201c:	7607 	in	r3, 7
+    201e:	06d8 	not	r3, r3
+    2020:	540f 	movi	r2, 15
+    2022:	04c2 	and	r2, r3, r2
+    2024:	65fb 	bnz	r2, -8
+    2026:	43bc 	st	-8(r6), r1
+        "__pol1: in %1, %4\n\t"
+        "not %1, %1\n\t"
+        "movi %0, 15\n\t"
+        "and %0, %1, %0\n\t"
+        "bz %0, __pol1\n\t"      
+        "__pol2: in %1, %4\n\t"
+        "not %1, %1\n\t"
+        "movi %2, 15\n\t"
+        "and %2, %1, %2\n\t"
+        "bnz %2, __pol2\n\t"
+        : "=r" (res)
+        : "r" (aux1),
+          "r" (aux2),
+          "r" (aux3),
+          "i" (7));              // Puerto 7 => Registro con el estado de los pulsadores (KEY)
+
+    return res;
+    2028:	33bc 	ld	r1, -8(r6)
+}
+    202a:	35c1 	ld	r2, 2(r7)
+    202c:	37c0 	ld	r3, 0(r7)
+    202e:	3dc6 	ld	r6, 12(r7)
+    2030:	3bc7 	ld	r5, 14(r7)
+    2032:	2fd0 	addi	r7, r7, 16
+    2034:	a143 	jmp	r5
+
+00002036 <read_switchs>:
+
+
+/************************************************************
+* Devuelve el estado actual de los interruptores (switch)   *
+* de la placa DE1                                           *
+************************************************************/ 
+unsigned int read_switchs(void)
+{
+    2036:	2ffa 	addi	r7, r7, -6
+    2038:	4bc2 	st	4(r7), r5
+    203a:	4dc1 	st	2(r7), r6
+    203c:	2dc2 	addi	r6, r7, 2
+  unsigned int res;
+
+  __asm__ ( "in %0, %1" 
+    203e:	7208 	in	r1, 8
+    2040:	43bf 	st	-2(r6), r1
+          : "=r" (res)
+          : "i" (8));         // Puerto 8 => registro con el estado de los interruptores (SWITCH)
+
+  return res;
+    2042:	33bf 	ld	r1, -2(r6)
+}
+    2044:	3dc1 	ld	r6, 2(r7)
+    2046:	3bc2 	ld	r5, 4(r7)
+    2048:	2fc6 	addi	r7, r7, 6
+    204a:	a143 	jmp	r5
+
+0000204c <write_7segments>:
+ 
+
+/*************************************************************
+* Escribe en los visores 7 segmentos un valor hexadecimal    *
+* y determina que visores están encendidos y cuales apagados *
+*************************************************************/ 
+int write_7segments(int valor, char control)
+{
+    204c:	2ff8 	addi	r7, r7, -8
+    204e:	4bc3 	st	6(r7), r5
+    2050:	4dc2 	st	4(r7), r6
+    2052:	2dc4 	addi	r6, r7, 4
+    2054:	45c0 	st	0(r7), r2
+    int res;
+
+    __asm__ (
+    2056:	d586 	ldb	r2, 6(r6)
+    2058:	3382 	ld	r1, 4(r6)
+    205a:	7509 	out	9, r2
+    205c:	730a 	out	10, r1
+        "out %0, %1\n\t"      // apagamos/encendemos los visores
+        "out %2, %3\n\t"      // mostramos el valor
+        : /* sin salidas*/
+        : "i" (9),            // Puerto 9 => Control visores
+          "r" (control),
+          "i" (10),           // Puerto 10 => Valor visores
+          "r" (valor));
+
+    return res;
+    205e:	33bf 	ld	r1, -2(r6)
+}
+    2060:	35c0 	ld	r2, 0(r7)
+    2062:	3dc2 	ld	r6, 4(r7)
+    2064:	3bc3 	ld	r5, 6(r7)
+    2066:	2fc8 	addi	r7, r7, 8
+    2068:	a143 	jmp	r5
+
+0000206a <fibonacci_recursiu>:
+
+
+/* key codes */
+#define KEY3      0x08
+#define KEY2      0x04
+#define KEY1      0x02
+#define KEY0      0x01
+
+
+unsigned int fibonacci_recursiu(unsigned int n)
+{
+    206a:	2ff6 	addi	r7, r7, -10
+    206c:	4bc4 	st	8(r7), r5
+    206e:	4dc3 	st	6(r7), r6
+    2070:	2dc6 	addi	r6, r7, 6
+    2072:	45c1 	st	2(r7), r2
+    2074:	47c0 	st	0(r7), r3
+    if (n<2)
+    2076:	3382 	ld	r1, 4(r6)
+    2078:	5401 	movi	r2, 1
+    207a:	126a 	cmpleu	r1, r1, r2
+    207c:	6204 	bz	r1, 10
+        return n;
+    207e:	3382 	ld	r1, 4(r6)
+    2080:	43bf 	st	-2(r6), r1
+    2082:	5a00 	movi	r5, 0
+    2084:	6a15 	bz	r5, 44
+    else
+        return fibonacci_recursiu(n-1) + fibonacci_recursiu(n-2);
+    2086:	3382 	ld	r1, 4(r6)
+    2088:	247f 	addi	r2, r1, -1
+    208a:	2ffe 	addi	r7, r7, -2
+    208c:	23c0 	addi	r1, r7, 0
+    208e:	4440 	st	0(r1), r2
+    2090:	526a 	movi	r1, 106
+    2092:	5320 	movhi	r1, 32
+    2094:	aa44 	jal	r5, r1
+    2096:	2fc2 	addi	r7, r7, 2
+    2098:	2640 	addi	r3, r1, 0
+    209a:	3382 	ld	r1, 4(r6)
+    209c:	247e 	addi	r2, r1, -2
+    209e:	2ffe 	addi	r7, r7, -2
+    20a0:	23c0 	addi	r1, r7, 0
+    20a2:	4440 	st	0(r1), r2
+    20a4:	526a 	movi	r1, 106
+    20a6:	5320 	movhi	r1, 32
+    20a8:	aa44 	jal	r5, r1
+    20aa:	2fc2 	addi	r7, r7, 2
+    20ac:	06e1 	add	r3, r3, r1
+    20ae:	47bf 	st	-2(r6), r3
+    20b0:	33bf 	ld	r1, -2(r6)
+}
+    20b2:	35c1 	ld	r2, 2(r7)
+    20b4:	37c0 	ld	r3, 0(r7)
+    20b6:	3dc3 	ld	r6, 6(r7)
+    20b8:	3bc4 	ld	r5, 8(r7)
+    20ba:	2fca 	addi	r7, r7, 10
+    20bc:	a143 	jmp	r5
+
+000020be <main>:
+
+/*
+ Muestra el valor de la secuencia de fibonaccio (en hexadecimal) por los visores de la placa
+ a) calcula el valor de fibonacci de forma recursiva:
+    Si se pulsa KEY1 se llama al fibonacci recursivo con el valor natural que este codificado en los 4 SWITCH de menor peso.
+
+ b) calcula el valor del fibonacci de forma iterativa paso a paso
+    Si se pulsa KEY3 se ponen la sucecions al inicio (primer valor)
+    cada vez que se pulsa KEY2 muestra el siguiente valor de la sucesion
+*/
+
+int main (void)
+{
+    20be:	2ff0 	addi	r7, r7, -16
+    20c0:	4bc7 	st	14(r7), r5
+    20c2:	4dc6 	st	12(r7), r6
+    20c4:	2dcc 	addi	r6, r7, 12
+    20c6:	45c0 	st	0(r7), r2
+    int pulsador;
+    unsigned int interruptores;
+    int fibonacci=0, anterior=0, actual=1;
+    20c8:	5200 	movi	r1, 0
+    20ca:	43bd 	st	-6(r6), r1
+    20cc:	5200 	movi	r1, 0
+    20ce:	43be 	st	-4(r6), r1
+    20d0:	5201 	movi	r1, 1
+    20d2:	43bf 	st	-2(r6), r1
+
+    write_7segments(fibonacci, 0x0F);
+    20d4:	2ffc 	addi	r7, r7, -4
+    20d6:	25c0 	addi	r2, r7, 0
+    20d8:	33bd 	ld	r1, -6(r6)
+    20da:	4280 	st	0(r2), r1
+    20dc:	520f 	movi	r1, 15
+    20de:	e282 	stb	2(r2), r1
+    20e0:	524c 	movi	r1, 76
+    20e2:	5320 	movhi	r1, 32
+    20e4:	aa44 	jal	r5, r1
+    20e6:	2fc4 	addi	r7, r7, 4
+    for (;;) {
+        pulsador=read_key_bloq();
+    20e8:	5200 	movi	r1, 0
+    20ea:	5320 	movhi	r1, 32
+    20ec:	aa44 	jal	r5, r1
+    20ee:	43bb 	st	-10(r6), r1
+        if (pulsador==KEY3) { //reset para el fibonacci interativo
+    20f0:	35bb 	ld	r2, -10(r6)
+    20f2:	5208 	movi	r1, 8
+    20f4:	1299 	cmpeq	r1, r2, r1
+    20f6:	6206 	bz	r1, 14
+            fibonacci=0;
+    20f8:	5200 	movi	r1, 0
+    20fa:	43bd 	st	-6(r6), r1
+            anterior=0;
+    20fc:	5200 	movi	r1, 0
+    20fe:	43be 	st	-4(r6), r1
+            actual=1;
+    2100:	5201 	movi	r1, 1
+    2102:	43bf 	st	-2(r6), r1
+        }
+        if (pulsador==KEY2) { //siguiente sucesion del fibonacci iterativo
+    2104:	33bb 	ld	r1, -10(r6)
+    2106:	5404 	movi	r2, 4
+    2108:	125a 	cmpeq	r1, r1, r2
+    210a:	6208 	bz	r1, 18
+            fibonacci=actual+anterior;
+    210c:	35bf 	ld	r2, -2(r6)
+    210e:	33be 	ld	r1, -4(r6)
+    2110:	02a1 	add	r1, r2, r1
+    2112:	43bd 	st	-6(r6), r1
+            anterior=actual;
+    2114:	33bf 	ld	r1, -2(r6)
+    2116:	43be 	st	-4(r6), r1
+            actual=fibonacci;
+    2118:	33bd 	ld	r1, -6(r6)
+    211a:	43bf 	st	-2(r6), r1
+        }
+        if (pulsador==KEY1) { //llamada al fibonacci recursivo
+    211c:	33bb 	ld	r1, -10(r6)
+    211e:	5402 	movi	r2, 2
+    2120:	125a 	cmpeq	r1, r1, r2
+    2122:	6211 	bz	r1, 36
+            interruptores=read_switchs();
+    2124:	5236 	movi	r1, 54
+    2126:	5320 	movhi	r1, 32
+    2128:	aa44 	jal	r5, r1
+    212a:	43bc 	st	-8(r6), r1
+            interruptores=interruptores & 0x000F; // limitamos el valor a 15 para que los numeros grandes no desborden la pila en las llamadas recursivas
+    212c:	35bc 	ld	r2, -8(r6)
+    212e:	520f 	movi	r1, 15
+    2130:	0281 	and	r1, r2, r1
+    2132:	43bc 	st	-8(r6), r1
+            fibonacci=fibonacci_recursiu(interruptores);
+    2134:	2ffe 	addi	r7, r7, -2
+    2136:	25c0 	addi	r2, r7, 0
+    2138:	33bc 	ld	r1, -8(r6)
+    213a:	4280 	st	0(r2), r1
+    213c:	526a 	movi	r1, 106
+    213e:	5320 	movhi	r1, 32
+    2140:	aa44 	jal	r5, r1
+    2142:	2fc2 	addi	r7, r7, 2
+    2144:	43bd 	st	-6(r6), r1
+        }
+        write_7segments(fibonacci, 0x0F);
+    2146:	2ffc 	addi	r7, r7, -4
+    2148:	25c0 	addi	r2, r7, 0
+    214a:	33bd 	ld	r1, -6(r6)
+    214c:	4280 	st	0(r2), r1
+    214e:	520f 	movi	r1, 15
+    2150:	e282 	stb	2(r2), r1
+    2152:	524c 	movi	r1, 76
+    2154:	5320 	movhi	r1, 32
+    2156:	aa44 	jal	r5, r1
+    2158:	2fc4 	addi	r7, r7, 4
+    }
+    215a:	5ae8 	movi	r5, -24
+    215c:	5b20 	movhi	r5, 32
+    215e:	a143 	jmp	r5
+
+temp_fibonacci.o:     file format elf32-sisa
+temp_fibonacci.o
+architecture: sisa:3, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x00000000
+
+Program Header:
+    LOAD off    0x00000000 vaddr 0x00001fac paddr 0x00001fac align 2**0
+         filesz 0x000001b4 memsz 0x000001b4 flags r-x
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn  Flags
+  0 .code         00000160  00002000  00002000  00000054  2**1  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .stab         0000048c  00003000  00003000  000001b4  2**2  CONTENTS, READONLY, DEBUGGING
+  2 .stabstr      000003e1  0000348c  0000348c  00000640  2**0  CONTENTS, READONLY, DEBUGGING
+SYMBOL TABLE:
+
+
