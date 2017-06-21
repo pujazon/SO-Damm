@@ -13,7 +13,6 @@ Amb tot, tindrem 1 pàgina de codi de sistema, 1 pàgina amb les dades (i la pil
 Address
 Contingut
 0x0000
--
 0x1000
 Codi Programa 1
 0x2000
@@ -22,9 +21,8 @@ Dades Programa 2
 Codi Programa 2
 0x4000
 Dades Programa 1
-0x5000 -
+0x5000
 0x7000
--
 0x8000
 Dades S.O: PILA1 // PILA 2
 0x9000
@@ -36,7 +34,7 @@ VGA
 0xC000
 Codi S.O.
 0xD000 - 0xE000
--
+
  
 Taula 3.1.1. Distribució de les zones de memòria per part del Sistema Operatiu.
 Les excepcions tenen un tractament molt senzill. En la gran majoria del casos, excepte divisions per zero i excepcions de coma flotant, el processador farà un HALT, i no es recuperarà. En els altres, farem un resume i tornarem al programa. No hi ha tractament d’excepcions de TLB perquè no tenim Copy-On-Write i totes les nostres pàgines caben perfectament a la TLB. Això vol dir que si hi ha una fallada de TLB, hi ha algun error de programació.
